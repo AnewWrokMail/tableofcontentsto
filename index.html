@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Faceless Data Engine</title>
+    <script>
+        const activeEmails = new Set();
+
+        // Automatically fetch database entries when the page is viewed in a browser
+        async function loadStoredEmails() {
+            try {
+                // Looks for an adjacent database file in your repository root
+                const response = await fetch('./emails.json');
+                if (response.ok) {
+                    const emailList = await response.json();
+                    updateEmails(emailList);
+                    console.log("Database initialized successfully.");
+                }
+            } catch (err) {
+                console.error("No active database payload detected yet:", err);
+            }
+        }
+
+        function updateEmails(emailList) {
+            if (!Array.isArray(emailList)) return;
+            emailList.forEach(email => {
+                if (email && typeof email === 'string') {
+                    const cleanEmail = email.trim();
+                    if (cleanEmail.length > 0) activeEmails.add(cleanEmail);
+                }
+            });
+        }
+
+        function isEmailOnList(email) {
+            if (!email || typeof email !== 'string') return false;
+            const cleanEmail = email.trim();
+            if (activeEmails.has(cleanEmail)) return true;
+            
+            const lowerCheck = cleanEmail.toLowerCase();
+            for (let entry of activeEmails) {
+                if (entry.toLowerCase() === lowerCheck) return true;
+            }
+            return false;
+        }
+
+        // Run automatically when the webpage hits the DOM engine
+        window.onload = loadStoredEmails;
+    </script>
+</head>
+<body>
+</body>
+</html>
